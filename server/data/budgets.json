@@ -1,0 +1,58 @@
+[
+  {
+    "id": "b001",
+    "category": "Food",
+    "limit": 10000,
+    "spent": 8200,
+    "month": "2026-05",
+    "carryForward": false
+  },
+  {
+    "id": "b002",
+    "category": "Rent",
+    "limit": 12000,
+    "spent": 12000,
+    "month": "2026-05",
+    "carryForward": false
+  },
+  {
+    "id": "b003",
+    "category": "Transport",
+    "limit": 5000,
+    "spent": 2800,
+    "month": "2026-05",
+    "carryForward": false
+  },
+  {
+    "id": "b004",
+    "category": "Entertainment",
+    "limit": 3000,
+    "spent": 1200,
+    "month": "2026-05",
+    "carryForward": false
+  },
+  {
+    "id": "b005",
+    "category": "Health",
+    "limit": 4000,
+    "spent": 1800,
+    "month": "2026-05",
+    "carryForward": false
+  },
+  {
+    "id": "b006",
+    "category": "Shopping",
+    "limit": 3000,
+    "spent": 2340,
+    "month": "2026-05",
+    "carryForward": false
+  },
+  {
+    "id": "b007",
+    "category": "Others",
+    "limit": 2000,
+    "spent": 0,
+    "month": "2026-05",
+    "carryForward": false
+  }
+]
