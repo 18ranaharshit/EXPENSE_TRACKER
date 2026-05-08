@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
     } catch (err) {
-      console.error('Auth check failed:', err);
+      // Quiet fail for auth check
       setUser(null);
     } finally {
       setLoading(false);
