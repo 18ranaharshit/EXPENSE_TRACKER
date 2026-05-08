@@ -32,11 +32,6 @@
     <img src="https://img.shields.io/badge/🚀_LAUNCH_APP-CLICK_HERE-blueviolet?style=for-the-badge" />
   </a>
 
-  <br/><br/>
-  
-  <img src="./dashboard.png" alt="Dashboard Preview" width="90%" />
-  
-  *<sub>The neon-dark dashboard featuring real-time analytics and transaction history.</sub>*
 </div>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" />
