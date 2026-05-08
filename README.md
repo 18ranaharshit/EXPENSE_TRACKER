@@ -111,7 +111,7 @@
 
 <div align="center">
 
-### Made with ❤️ by the Developer
+### Made with ❤️ by Harshit
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=100&section=footer"/>
 
