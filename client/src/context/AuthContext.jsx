@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -38,21 +39,11 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('auth_token');
     setUser(null);
-    window.location.href = '/login';
   };
 
   useEffect(() => {
-    // Check for token in URL (after Google redirect)
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    
-    if (token) {
-      // Remove token from URL for cleanliness
-      window.history.replaceState({}, document.title, "/dashboard");
-      checkUser(token);
-    } else {
-      checkUser();
-    }
+    // On mount, check for existing token in localStorage
+    checkUser();
   }, []);
 
   return (

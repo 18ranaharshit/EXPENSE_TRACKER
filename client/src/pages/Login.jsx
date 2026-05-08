@@ -1,12 +1,44 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  const { user, loading, checkUser } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [tokenProcessed, setTokenProcessed] = useState(false);
+
+  // Capture token from URL after Google OAuth redirect
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      localStorage.setItem('auth_token', token);
+      checkUser(token).then(() => setTokenProcessed(true));
+    } else {
+      setTokenProcessed(true);
+    }
+  }, []);
 
   const handleGoogleLogin = () => {
     window.location.href = `${API_URL}/auth/google`;
   };
+
+  // While processing token or checking auth, show loading
+  if (loading || !tokenProcessed) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
+        <div style={{ textAlign: 'center', color: 'white' }}>
+          <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#7B61FF', borderRadius: '50%', animation: 'spin 0.6s linear infinite', margin: '0 auto 16px' }} />
+          <span>Signing you in...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, redirect to dashboard
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="login-page" style={{ 
