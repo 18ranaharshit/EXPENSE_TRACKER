@@ -34,7 +34,7 @@
 
   <br/><br/>
   
-  <img src="https://expense-tracker-gray-omega.vercel.app/og-image.png" alt="Dashboard Preview" width="90%" />
+  <img src="./dashboard.png" alt="Dashboard Preview" width="90%" />
   
   *<sub>The neon-dark dashboard featuring real-time analytics and transaction history.</sub>*
 </div>
