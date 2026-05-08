@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -30,18 +30,24 @@ function ProtectedRoute({ children }) {
 }
 
 function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const breadcrumb = BREADCRUMBS[location.pathname] || 'ExpenseIQ';
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   if (location.pathname === '/login') return <Login />;
 
   return (
     <ProtectedRoute>
       <div className="app-layout">
-        <Sidebar collapsed={collapsed} onClose={() => setCollapsed(false)} />
-        <div className={`main-wrapper${collapsed ? ' sidebar-collapsed' : ''}`}>
-          <Topbar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} breadcrumb={breadcrumb} />
+        {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="main-wrapper">
+          <Topbar onToggle={() => setSidebarOpen(o => !o)} breadcrumb={breadcrumb} />
           <main>
             <Routes>
               <Route path="/" element={<Dashboard />} />

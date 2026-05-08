@@ -74,7 +74,7 @@ export default function Transactions() {
       <div className="card">
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Date</th><th>Description</th><th className="hide-mobile">Category</th><th>Type</th><th>Amount</th><th className="hide-mobile">Actions</th></tr></thead>
             <tbody>
               {paged.length === 0
                 ? <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>No transactions found</td></tr>

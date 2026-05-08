@@ -10,19 +10,17 @@ const navItems = [
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Sidebar({ collapsed, onClose }) {
+export default function Sidebar({ open, onClose }) {
   const { user, logout } = useAuth();
 
   return (
-    <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
+    <aside className={`sidebar${open ? ' open' : ''}`}>
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon"><Wallet size={18} /></div>
         <span className="sidebar-logo-text">ExpenseIQ</span>
-        {collapsed && (
-          <button className="icon-btn" style={{ marginLeft: 'auto' }} onClick={onClose}>
-            <X size={18} />
-          </button>
-        )}
+        <button className="icon-btn sidebar-close-btn" style={{ marginLeft: 'auto' }} onClick={onClose}>
+          <X size={18} />
+        </button>
       </div>
 
       <nav className="sidebar-nav">

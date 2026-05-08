@@ -94,7 +94,7 @@ export default function AddExpenseModal({ onClose, editTx }) {
             </div>
 
             {/* Date + Account */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="modal-grid-2">
               <div className="form-group">
                 <label className="form-label">Date</label>
                 <input className={`form-input${errors.date ? ' error' : ''}`} type="date" value={form.date} onChange={e => set('date', e.target.value)} />

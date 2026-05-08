@@ -80,6 +80,7 @@ body {
 .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 20px 16px; border-bottom: 1px solid var(--border); }
 .sidebar-logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; }
 .sidebar-logo-text { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.sidebar-close-btn { display: none; }
 .sidebar-nav { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 4px; }
 .nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition); cursor: pointer; border: none; background: none; width: 100%; font-size: 14px; font-family: inherit; }
 .nav-link:hover { background: var(--accent-soft); color: var(--accent); }
@@ -192,6 +193,7 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-secondary) 50
 .modal { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
 .modal-header { padding: 24px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; }
 .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.modal-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-footer { padding: 0 24px 24px; display: flex; gap: 12px; }
 
 /* Type toggle */
@@ -308,3 +310,134 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-secondary) 50
 .recharts-cartesian-grid-vertical line { stroke: var(--border); }
 .recharts-text { fill: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 12px; }
 .recharts-tooltip-wrapper .recharts-default-tooltip { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-sm) !important; }
+
+/* Responsive Media Queries */
+@media screen and (max-width: 1024px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .budget-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media screen and (max-width: 768px) {
+  :root {
+    --sidebar-width: 280px;
+  }
+
+  .app-layout { flex-direction: column; }
+  
+  .main-wrapper { 
+    margin-left: 0; 
+    padding-top: var(--topbar-height); 
+    width: 100%;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 20px 0 50px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .topbar {
+    left: 0;
+    padding: 0 16px;
+  }
+
+  .page-content {
+    padding: 16px;
+  }
+
+  .summary-grid { 
+    grid-template-columns: 1fr; 
+    gap: 12px;
+  }
+
+  .charts-row { gap: 12px; }
+
+  .budget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .table-wrap {
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+  }
+
+  th, td {
+    padding: 12px 12px;
+  }
+
+  /* Hide less critical table columns on mobile */
+  .hide-mobile {
+    display: none;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-bar .form-input, .search-input-wrap {
+    width: 100%;
+  }
+
+  .summary-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .summary-stat {
+    flex: 1 1 40%;
+  }
+
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-height: 95vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .fab {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .fab:hover {
+    width: 56px;
+  }
+  
+  .fab:hover .fab-label {
+    max-width: 0;
+    margin-left: 0;
+  }
+}
+

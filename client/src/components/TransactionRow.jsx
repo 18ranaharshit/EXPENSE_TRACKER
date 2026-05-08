@@ -21,7 +21,7 @@ export default function TransactionRow({ tx, onEdit, onDelete }) {
           </div>
         </div>
       </td>
-      <td><CategoryBadge category={tx.category} /></td>
+      <td className="hide-mobile"><CategoryBadge category={tx.category} /></td>
       <td>
         <span className={`badge-pill ${isIncome ? 'badge-income' : 'badge-rent'}`} style={isIncome ? {} : { background: 'rgba(220,38,38,0.1)', color: 'var(--expense)' }}>
           {isIncome ? 'Income' : 'Expense'}
@@ -30,7 +30,7 @@ export default function TransactionRow({ tx, onEdit, onDelete }) {
       <td className={isIncome ? 'amount-income' : 'amount-expense'}>
         {isIncome ? '+' : '-'}{formatCurrency(tx.amount)}
       </td>
-      <td>
+      <td className="hide-mobile">
         <div style={{ display: 'flex', gap: 4 }}>
           <button className="icon-btn" onClick={() => onEdit(tx)} title="Edit"><Pencil size={15} /></button>
           <button className="icon-btn" onClick={() => onDelete(tx.id)} title="Delete" style={{ color: 'var(--danger)' }}><Trash2 size={15} /></button>

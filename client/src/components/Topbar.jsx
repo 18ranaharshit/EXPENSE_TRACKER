@@ -1,11 +1,11 @@
 import { Menu, Bell, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-export default function Topbar({ collapsed, onToggle, breadcrumb }) {
+export default function Topbar({ onToggle, breadcrumb }) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className={`topbar${collapsed ? ' sidebar-collapsed' : ''}`}>
+    <header className="topbar">
       <div className="topbar-left">
         <button className="icon-btn" onClick={onToggle} aria-label="Toggle sidebar">
           <Menu size={20} />
