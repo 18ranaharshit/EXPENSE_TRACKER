@@ -13,8 +13,8 @@ function CircularProgress({ pct, size = 140, stroke = 12 }) {
   const dash = (pct / 100) * circ;
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--bg-secondary)" strokeWidth={stroke} />
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--accent)" strokeWidth={stroke}
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--bg-secondary)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--accent)" strokeWidth={stroke}
         strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" style={{ transition: 'stroke-dasharray 0.6s ease' }} />
     </svg>
   );
@@ -27,9 +27,9 @@ export default function Analytics() {
   const [heatmap, setHeatmap] = useState({});
 
   useEffect(() => {
-    fetch(`${API}/analytics/monthly`).then(r => r.json()).then(setMonthly).catch(() => {});
-    fetch(`${API}/analytics/categories?month=${month}`).then(r => r.json()).then(setCats).catch(() => {});
-    fetch(`${API}/analytics/heatmap?month=${month}`).then(r => r.json()).then(setHeatmap).catch(() => {});
+    fetch(`${API}/analytics/monthly`).then(r => r.json()).then(setMonthly).catch(() => { });
+    fetch(`${API}/analytics/categories?month=${month}`).then(r => r.json()).then(setCats).catch(() => { });
+    fetch(`${API}/analytics/heatmap?month=${month}`).then(r => r.json()).then(setHeatmap).catch(() => { });
   }, [month]);
 
   const savingsPct = 62;
@@ -50,7 +50,7 @@ export default function Analytics() {
       {/* Row 1: Trend + Comparison */}
       <div style={{ display: 'grid', gridTemplateColumns: '65fr 35fr', gap: 16, marginBottom: 16 }}>
         <div className="card card-body">
-          <h3 className="section-title" style={{ marginBottom: 16 }}>Monthly Spending Trend — 2026</h3>
+          <h3 className="section-title" style={{ marginBottom: 16 }}>Monthly Spending Trend - 2026</h3>
           <BarChart data={monthly} />
         </div>
         <div className="card card-body">
@@ -95,7 +95,7 @@ export default function Analytics() {
           ))}
         </div>
         <div className="card card-body">
-          <h3 className="section-title" style={{ marginBottom: 16 }}>Spending Heatmap — This Month</h3>
+          <h3 className="section-title" style={{ marginBottom: 16 }}>Spending Heatmap - This Month</h3>
           <HeatmapCalendar heatmapData={heatmap} month={month} />
         </div>
       </div>

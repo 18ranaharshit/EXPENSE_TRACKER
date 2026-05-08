@@ -20,9 +20,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     const month = new Date().toISOString().slice(0, 7);
-    fetch(`${API}/analytics/summary?month=${month}`).then(r => r.json()).then(setSummary).catch(() => {});
-    fetch(`${API}/analytics/monthly`).then(r => r.json()).then(setMonthlyData).catch(() => {});
-    fetch(`${API}/analytics/categories?month=${month}`).then(r => r.json()).then(setCatData).catch(() => {});
+    fetch(`${API}/analytics/summary?month=${month}`).then(r => r.json()).then(setSummary).catch(() => { });
+    fetch(`${API}/analytics/monthly`).then(r => r.json()).then(setMonthlyData).catch(() => { });
+    fetch(`${API}/analytics/categories?month=${month}`).then(r => r.json()).then(setCatData).catch(() => { });
   }, [transactions]);
 
   const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
@@ -43,7 +43,7 @@ export default function Dashboard() {
       {/* Charts */}
       <div className="charts-row">
         <div className="card card-body">
-          <h3 className="section-title" style={{ marginBottom: 16 }}>Income vs Expenses — Last 6 Months</h3>
+          <h3 className="section-title" style={{ marginBottom: 16 }}>Income vs Expenses - Last 6 Months</h3>
           <LineChart data={monthlyData.slice(0, 6)} />
         </div>
         <div className="card card-body">
