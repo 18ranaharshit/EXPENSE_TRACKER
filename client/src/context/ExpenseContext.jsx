@@ -95,10 +95,8 @@ export function ExpenseProvider({ children }) {
     await fetchBudgets();
   };
 
-  useEffect(() => { 
-    fetchTransactions(); 
-    fetchBudgets(); 
-  }, [fetchTransactions, fetchBudgets]);
+  // Removed immediate useEffect to prevent 401s on login page
+  // Fetching is now triggered by components when needed, or we could add a conditional useEffect here.
 
   return (
     <ExpenseContext.Provider value={{ transactions, budgets, loading, toast, fetchTransactions, fetchBudgets, addTransaction, updateTransaction, deleteTransaction, addBudget, updateBudget, deleteBudget }}>

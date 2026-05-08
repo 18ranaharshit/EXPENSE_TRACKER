@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Download } from 'lucide-react';
 import TransactionRow from '../components/TransactionRow';
 import AddExpenseModal from '../components/AddExpenseModal';
@@ -8,7 +8,11 @@ import { formatCurrency } from '../utils/formatCurrency';
 const CATEGORIES = ['All','Food','Rent','Transport','Entertainment','Health','Shopping','Utilities','Others','Income'];
 
 export default function Transactions() {
-  const { transactions, deleteTransaction } = useExpense();
+  const { transactions, deleteTransaction, fetchTransactions } = useExpense();
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');

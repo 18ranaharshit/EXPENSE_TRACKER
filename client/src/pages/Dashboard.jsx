@@ -8,10 +8,10 @@ import AddExpenseModal from '../components/AddExpenseModal';
 import { useExpense } from '../context/ExpenseContext';
 import { formatCurrency } from '../utils/formatCurrency';
 
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export default function Dashboard() {
-  const { transactions, deleteTransaction } = useExpense();
+  const { transactions, deleteTransaction, fetchTransactions } = useExpense();
   const [summary, setSummary] = useState({ totalBalance: 0, monthlyIncome: 0, monthlyExpense: 0, savingsRate: 0 });
   const [monthlyData, setMonthlyData] = useState([]);
   const [catData, setCatData] = useState({ categories: [], total: 0 });
@@ -19,10 +19,14 @@ export default function Dashboard() {
   const [editTx, setEditTx] = useState(null);
 
   useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  useEffect(() => {
     const month = new Date().toISOString().slice(0, 7);
-    fetch(`${API}/analytics/summary?month=${month}`).then(r => r.json()).then(setSummary).catch(() => { });
-    fetch(`${API}/analytics/monthly`).then(r => r.json()).then(setMonthlyData).catch(() => { });
-    fetch(`${API}/analytics/categories?month=${month}`).then(r => r.json()).then(setCatData).catch(() => { });
+    fetch(`${API}/analytics/summary?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setSummary).catch(() => { });
+    fetch(`${API}/analytics/monthly`, { credentials: 'include' }).then(r => r.json()).then(setMonthlyData).catch(() => { });
+    fetch(`${API}/analytics/categories?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setCatData).catch(() => { });
   }, [transactions]);
 
   const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);

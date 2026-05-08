@@ -59,9 +59,14 @@ function AddBudgetModal({ onClose, onSave, existing }) {
 }
 
 export default function Budget() {
-  const { budgets, addBudget, updateBudget, deleteBudget, transactions } = useExpense();
+  const { budgets, addBudget, updateBudget, deleteBudget, transactions, fetchBudgets, fetchTransactions } = useExpense();
   const [showModal, setShowModal] = useState(false);
   const month = new Date().toISOString().slice(0, 7);
+
+  useEffect(() => {
+    fetchBudgets(month);
+    fetchTransactions();
+  }, [fetchBudgets, fetchTransactions, month]);
 
   // Enrich budgets with transaction counts
   const enriched = budgets.map(b => {

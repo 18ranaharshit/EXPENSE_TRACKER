@@ -5,7 +5,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { CHART_COLORS } from '../utils/categoryColors';
 import { Download, Sparkles, AlertTriangle, CheckCircle, Lightbulb } from 'lucide-react';
 
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function CircularProgress({ pct, size = 140, stroke = 12 }) {
   const r = (size - stroke) / 2;
@@ -27,9 +27,9 @@ export default function Analytics() {
   const [heatmap, setHeatmap] = useState({});
 
   useEffect(() => {
-    fetch(`${API}/analytics/monthly`).then(r => r.json()).then(setMonthly).catch(() => { });
-    fetch(`${API}/analytics/categories?month=${month}`).then(r => r.json()).then(setCats).catch(() => { });
-    fetch(`${API}/analytics/heatmap?month=${month}`).then(r => r.json()).then(setHeatmap).catch(() => { });
+    fetch(`${API}/analytics/monthly`, { credentials: 'include' }).then(r => r.json()).then(setMonthly).catch(() => { });
+    fetch(`${API}/analytics/categories?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setCats).catch(() => { });
+    fetch(`${API}/analytics/heatmap?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setHeatmap).catch(() => { });
   }, [month]);
 
   const savingsPct = 62;
