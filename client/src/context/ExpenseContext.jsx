@@ -5,9 +5,13 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const ExpenseContext = createContext();
 
 const fetchWithAuth = (url, options = {}) => {
+  const token = localStorage.getItem('auth_token');
   return fetch(url, {
     ...options,
-    credentials: 'include',
+    headers: {
+      ...options.headers,
+      'Authorization': token ? `Bearer ${token}` : ''
+    }
   });
 };
 

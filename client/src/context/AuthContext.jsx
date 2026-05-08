@@ -7,35 +7,52 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-  const checkUser = async () => {
+  const checkUser = async (token) => {
+    const activeToken = token || localStorage.getItem('auth_token');
+    if (!activeToken) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
+      const res = await fetch(`${API_URL}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${activeToken}`
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setUser(data);
+        localStorage.setItem('auth_token', activeToken);
       } else {
         setUser(null);
+        localStorage.removeItem('auth_token');
       }
     } catch (err) {
-      // Quiet fail for auth check
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = async () => {
-    try {
-      await fetch(`${API_URL}/auth/logout`, { credentials: 'include' });
-      setUser(null);
-      window.location.href = '/login';
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
+  const logout = () => {
+    localStorage.removeItem('auth_token');
+    setUser(null);
+    window.location.href = '/login';
   };
 
   useEffect(() => {
-    checkUser();
+    // Check for token in URL (after Google redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      // Remove token from URL for cleanliness
+      window.history.replaceState({}, document.title, "/dashboard");
+      checkUser(token);
+    } else {
+      checkUser();
+    }
   }, []);
 
   return (

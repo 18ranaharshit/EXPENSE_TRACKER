@@ -27,9 +27,12 @@ export default function Analytics() {
   const [heatmap, setHeatmap] = useState({});
 
   useEffect(() => {
-    fetch(`${API}/analytics/monthly`, { credentials: 'include' }).then(r => r.json()).then(setMonthly).catch(() => { });
-    fetch(`${API}/analytics/categories?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setCats).catch(() => { });
-    fetch(`${API}/analytics/heatmap?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setHeatmap).catch(() => { });
+    const token = localStorage.getItem('auth_token');
+    const headers = { 'Authorization': token ? `Bearer ${token}` : '' };
+
+    fetch(`${API}/analytics/monthly`, { headers }).then(r => r.json()).then(setMonthly).catch(() => { });
+    fetch(`${API}/analytics/categories?month=${month}`, { headers }).then(r => r.json()).then(setCats).catch(() => { });
+    fetch(`${API}/analytics/heatmap?month=${month}`, { headers }).then(r => r.json()).then(setHeatmap).catch(() => { });
   }, [month]);
 
   const savingsPct = 62;

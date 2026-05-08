@@ -24,9 +24,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const month = new Date().toISOString().slice(0, 7);
-    fetch(`${API}/analytics/summary?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setSummary).catch(() => { });
-    fetch(`${API}/analytics/monthly`, { credentials: 'include' }).then(r => r.json()).then(setMonthlyData).catch(() => { });
-    fetch(`${API}/analytics/categories?month=${month}`, { credentials: 'include' }).then(r => r.json()).then(setCatData).catch(() => { });
+    const token = localStorage.getItem('auth_token');
+    const headers = { 'Authorization': token ? `Bearer ${token}` : '' };
+
+    fetch(`${API}/analytics/summary?month=${month}`, { headers }).then(r => r.json()).then(setSummary).catch(() => { });
+    fetch(`${API}/analytics/monthly`, { headers }).then(r => r.json()).then(setMonthlyData).catch(() => { });
+    fetch(`${API}/analytics/categories?month=${month}`, { headers }).then(r => r.json()).then(setCatData).catch(() => { });
   }, [transactions]);
 
   const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
