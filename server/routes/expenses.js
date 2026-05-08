@@ -6,7 +6,7 @@ const auth = require('../middleware/auth');
 // Protect all routes
 router.use(auth);
 
-// GET all expenses (with optional filters)
+// GET all expenses (with optional filters) — uses .lean() + projections
 router.get('/', async (req, res) => {
   try {
     const { type, category, month, search, page = 1, limit = 10 } = req.query;
@@ -27,29 +27,36 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    const expenses = await Expense.find(query)
-      .sort({ date: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
 
-    const total = await Expense.countDocuments(query);
+    // Parallel count + fetch for speed
+    const [expenses, total] = await Promise.all([
+      Expense.find(query)
+        .select('title amount type category account date notes recurring frequency')
+        .sort({ date: -1 })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum)
+        .lean(),
+      Expense.countDocuments(query)
+    ]);
 
     res.json({ 
       data: expenses, 
       total, 
-      page: parseInt(page), 
-      limit: parseInt(limit), 
-      pages: Math.ceil(total / limit) 
+      page: pageNum, 
+      limit: limitNum, 
+      pages: Math.ceil(total / limitNum) 
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET single expense
+// GET single expense — .lean() for speed
 router.get('/:id', async (req, res) => {
   try {
-    const expense = await Expense.findOne({ _id: req.params.id, user: req.user._id });
+    const expense = await Expense.findOne({ _id: req.params.id, user: req.user._id }).lean();
     if (!expense) return res.status(404).json({ error: 'Not found' });
     res.json(expense);
   } catch (err) {
@@ -92,7 +99,7 @@ router.put('/:id', async (req, res) => {
       { _id: req.params.id, user: req.user._id },
       { ...req.body },
       { new: true }
-    );
+    ).lean();
     
     if (!expense) return res.status(404).json({ error: 'Not found' });
     res.json(expense);

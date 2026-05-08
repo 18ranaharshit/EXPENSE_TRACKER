@@ -8,4 +8,7 @@ const budgetSchema = new mongoose.Schema({
   period: { type: String, default: 'monthly' }
 }, { timestamps: true });
 
+// Compound index for user budget lookups
+budgetSchema.index({ user: 1, category: 1 });
+
 module.exports = mongoose.model('Budget', budgetSchema);

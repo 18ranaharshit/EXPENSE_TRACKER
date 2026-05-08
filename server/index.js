@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const compression = require('compression');
 
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -15,10 +16,25 @@ const authRouter = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// MongoDB Connection — Singleton pattern with connection pooling
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      maxPoolSize: 10,        // Connection pool for concurrent requests
+      minPoolSize: 2,         // Keep 2 warm connections
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    isConnected = conn.connections[0].readyState === 1;
+    console.log('Connected to MongoDB (pooled)');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  }
+};
+connectDB();
 
 // Passport Config
 passport.use(new GoogleStrategy({
@@ -29,7 +45,7 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      let user = await User.findOne({ googleId: profile.id });
+      let user = await User.findOne({ googleId: profile.id }).lean();
       if (!user) {
         user = await User.create({
           googleId: profile.id,
@@ -45,13 +61,15 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+// Gzip/Brotli compression — reduces response size by ~70%
+app.use(compression());
+
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 app.use(express.json());
 app.set('trust proxy', 1);
-// app.use(session({...})) removed for JWT
 app.use(passport.initialize());
 
 app.use('/api/auth', authRouter);

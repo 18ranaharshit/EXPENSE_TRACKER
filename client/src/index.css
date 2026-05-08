@@ -298,6 +298,8 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-secondary) 50
 /* Toast notification */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 300; font-size: 14px; font-weight: 500; animation: slideUp 0.3s ease; }
 @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-screen { display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 16px; color: var(--text-muted); }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -438,6 +440,20 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-secondary) 50
   .fab:hover .fab-label {
     max-width: 0;
     margin-left: 0;
+  }
+
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .heatmap-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+
+  .pagination {
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }
 

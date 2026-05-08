@@ -13,4 +13,10 @@ const expenseSchema = new mongoose.Schema({
   frequency: String
 }, { timestamps: true });
 
+// Compound indexes for sub-10ms queries
+expenseSchema.index({ user: 1, date: -1 });           // Primary listing query
+expenseSchema.index({ user: 1, type: 1, date: -1 });  // Type-filtered queries
+expenseSchema.index({ user: 1, category: 1, date: -1 }); // Category-filtered queries
+expenseSchema.index({ user: 1, title: 'text', notes: 'text' }); // Text search
+
 module.exports = mongoose.model('Expense', expenseSchema);
