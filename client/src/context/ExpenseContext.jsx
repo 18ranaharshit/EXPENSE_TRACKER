@@ -1,7 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 const ExpenseContext = createContext();
+
+const fetchWithAuth = (url, options = {}) => {
+  return fetch(url, {
+    ...options,
+    credentials: 'include',
+  });
+};
 
 export function ExpenseProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
@@ -15,7 +23,7 @@ export function ExpenseProvider({ children }) {
     setLoading(true);
     try {
       const qs = new URLSearchParams({ limit: 100, ...params }).toString();
-      const res = await fetch(`${API}/expenses?${qs}`);
+      const res = await fetchWithAuth(`${API}/expenses?${qs}`);
       const json = await res.json();
       setTransactions(json.data || []);
     } catch (e) { console.error(e); }
@@ -25,53 +33,72 @@ export function ExpenseProvider({ children }) {
   const fetchBudgets = useCallback(async (month) => {
     try {
       const m = month || new Date().toISOString().slice(0, 7);
-      const res = await fetch(`${API}/budgets?month=${m}`);
+      const res = await fetchWithAuth(`${API}/budgets?month=${m}`);
       const json = await res.json();
       setBudgets(json);
     } catch (e) { console.error(e); }
   }, []);
 
   const addTransaction = async (data) => {
-    const res = await fetch(`${API}/expenses`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const res = await fetchWithAuth(`${API}/expenses`, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(data) 
+    });
     if (!res.ok) throw new Error('Failed to add');
     showToast('Transaction added!');
     await fetchTransactions();
   };
 
   const updateTransaction = async (id, data) => {
-    const res = await fetch(`${API}/expenses/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const res = await fetchWithAuth(`${API}/expenses/${id}`, { 
+      method: 'PUT', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(data) 
+    });
     if (!res.ok) throw new Error('Failed to update');
     showToast('Transaction updated!');
     await fetchTransactions();
   };
 
   const deleteTransaction = async (id) => {
-    await fetch(`${API}/expenses/${id}`, { method: 'DELETE' });
+    await fetchWithAuth(`${API}/expenses/${id}`, { method: 'DELETE' });
     showToast('Transaction deleted!');
     await fetchTransactions();
   };
 
   const addBudget = async (data) => {
-    const res = await fetch(`${API}/budgets`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const res = await fetchWithAuth(`${API}/budgets`, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(data) 
+    });
     if (!res.ok) throw new Error('Failed to add budget');
     showToast('Budget added!');
     await fetchBudgets();
   };
 
   const updateBudget = async (id, data) => {
-    const res = await fetch(`${API}/budgets/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const res = await fetchWithAuth(`${API}/budgets/${id}`, { 
+      method: 'PUT', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(data) 
+    });
     if (!res.ok) throw new Error('Failed to update budget');
     showToast('Budget updated!');
     await fetchBudgets();
   };
 
   const deleteBudget = async (id) => {
-    await fetch(`${API}/budgets/${id}`, { method: 'DELETE' });
+    await fetchWithAuth(`${API}/budgets/${id}`, { method: 'DELETE' });
     showToast('Budget deleted!');
     await fetchBudgets();
   };
 
-  useEffect(() => { fetchTransactions(); fetchBudgets(); }, [fetchTransactions, fetchBudgets]);
+  useEffect(() => { 
+    fetchTransactions(); 
+    fetchBudgets(); 
+  }, [fetchTransactions, fetchBudgets]);
 
   return (
     <ExpenseContext.Provider value={{ transactions, budgets, loading, toast, fetchTransactions, fetchBudgets, addTransaction, updateTransaction, deleteTransaction, addBudget, updateBudget, deleteBudget }}>

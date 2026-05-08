@@ -1,17 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { readData } = require('../middleware/validate');
+const Expense = require('../models/Expense');
+const auth = require('../middleware/auth');
 
-router.get('/summary', (req, res) => {
+// Protect all routes
+router.use(auth);
+
+router.get('/summary', async (req, res) => {
   try {
-    const expenses = readData('expenses.json');
     const month = req.query.month || new Date().toISOString().slice(0, 7);
-    const monthly = expenses.filter(e => e.date.startsWith(month));
+    const start = new Date(`${month}-01`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    const expenses = await Expense.find({ user: req.user._id });
+    const monthly = expenses.filter(e => {
+      const d = new Date(e.date);
+      return d >= start && d < end;
+    });
 
     const income = monthly.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const expense = monthly.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
 
-    // Total balance = all income - all expenses ever
     const totalIncome = expenses.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const totalExpense = expenses.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
 
@@ -26,15 +36,21 @@ router.get('/summary', (req, res) => {
   }
 });
 
-router.get('/monthly', (req, res) => {
+router.get('/monthly', async (req, res) => {
   try {
-    const expenses = readData('expenses.json');
     const year = req.query.year || new Date().getFullYear().toString();
+    const expenses = await Expense.find({ 
+      user: req.user._id,
+      date: {
+        $gte: new Date(`${year}-01-01`),
+        $lte: new Date(`${year}-12-31`)
+      }
+    });
 
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const result = months.map((label, i) => {
-      const monthKey = `${year}-${String(i + 1).padStart(2, '0')}`;
-      const monthly = expenses.filter(e => e.date.startsWith(monthKey));
+      const monthIdx = i;
+      const monthly = expenses.filter(e => new Date(e.date).getMonth() === monthIdx);
       return {
         month: label,
         income: monthly.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0),
@@ -48,11 +64,18 @@ router.get('/monthly', (req, res) => {
   }
 });
 
-router.get('/categories', (req, res) => {
+router.get('/categories', async (req, res) => {
   try {
-    const expenses = readData('expenses.json');
     const month = req.query.month || new Date().toISOString().slice(0, 7);
-    const monthly = expenses.filter(e => e.date.startsWith(month) && e.type === 'expense');
+    const start = new Date(`${month}-01`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    const monthly = await Expense.find({ 
+      user: req.user._id, 
+      type: 'expense',
+      date: { $gte: start, $lt: end }
+    });
 
     const totals = {};
     monthly.forEach(e => {
@@ -73,15 +96,23 @@ router.get('/categories', (req, res) => {
   }
 });
 
-router.get('/heatmap', (req, res) => {
+router.get('/heatmap', async (req, res) => {
   try {
-    const expenses = readData('expenses.json');
     const month = req.query.month || new Date().toISOString().slice(0, 7);
-    const monthly = expenses.filter(e => e.date.startsWith(month) && e.type === 'expense');
+    const start = new Date(`${month}-01`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    const monthly = await Expense.find({ 
+      user: req.user._id, 
+      type: 'expense',
+      date: { $gte: start, $lt: end }
+    });
 
     const heatmap = {};
     monthly.forEach(e => {
-      heatmap[e.date] = (heatmap[e.date] || 0) + e.amount;
+      const dateStr = new Date(e.date).toISOString().split('T')[0];
+      heatmap[dateStr] = (heatmap[dateStr] || 0) + e.amount;
     });
 
     res.json(heatmap);

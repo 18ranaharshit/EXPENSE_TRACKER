@@ -1,44 +1,55 @@
 const express = require('express');
 const router = express.Router();
-const { readData, writeData } = require('../middleware/validate');
-const { v4: uuidv4 } = require('uuid');
+const Expense = require('../models/Expense');
+const auth = require('../middleware/auth');
 
-const FILE = 'expenses.json';
+// Protect all routes
+router.use(auth);
 
 // GET all expenses (with optional filters)
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const data = readData(FILE);
-    let expenses = [...data];
+    const { type, category, month, search, page = 1, limit = 10 } = req.query;
+    const query = { user: req.user._id };
 
-    if (req.query.type) expenses = expenses.filter(e => e.type === req.query.type);
-    if (req.query.category) expenses = expenses.filter(e => e.category === req.query.category);
-    if (req.query.month) expenses = expenses.filter(e => e.date.startsWith(req.query.month));
-    if (req.query.search) {
-      const q = req.query.search.toLowerCase();
-      expenses = expenses.filter(e => e.title.toLowerCase().includes(q) || e.notes.toLowerCase().includes(q));
+    if (type) query.type = type;
+    if (category) query.category = category;
+    if (month) {
+      const start = new Date(`${month}-01`);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+      query.date = { $gte: start, $lt: end };
+    }
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { notes: { $regex: search, $options: 'i' } }
+      ];
     }
 
-    // Sort by date desc
-    expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const expenses = await Expense.find(query)
+      .sort({ date: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
 
-    // Pagination
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const total = expenses.length;
-    const paginated = expenses.slice((page - 1) * limit, page * limit);
+    const total = await Expense.countDocuments(query);
 
-    res.json({ data: paginated, total, page, limit, pages: Math.ceil(total / limit) });
+    res.json({ 
+      data: expenses, 
+      total, 
+      page: parseInt(page), 
+      limit: parseInt(limit), 
+      pages: Math.ceil(total / limit) 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET single expense
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
-    const data = readData(FILE);
-    const expense = data.find(e => e.id === req.params.id);
+    const expense = await Expense.findOne({ _id: req.params.id, user: req.user._id });
     if (!expense) return res.status(404).json({ error: 'Not found' });
     res.json(expense);
   } catch (err) {
@@ -47,15 +58,15 @@ router.get('/:id', (req, res) => {
 });
 
 // POST create expense
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { title, amount, type, category, account, date, notes, recurring, frequency } = req.body;
     if (!title || !amount || !type || !category || !date) {
       return res.status(400).json({ error: 'title, amount, type, category, date are required' });
     }
-    const data = readData(FILE);
-    const newExpense = {
-      id: uuidv4(),
+
+    const newExpense = new Expense({
+      user: req.user._id,
       title,
       amount: parseFloat(amount),
       type,
@@ -65,9 +76,9 @@ router.post('/', (req, res) => {
       notes: notes || '',
       recurring: recurring || false,
       frequency: frequency || null
-    };
-    data.push(newExpense);
-    writeData(FILE, data);
+    });
+
+    await newExpense.save();
     res.status(201).json(newExpense);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -75,28 +86,26 @@ router.post('/', (req, res) => {
 });
 
 // PUT update expense
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const data = readData(FILE);
-    const idx = data.findIndex(e => e.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Not found' });
-    data[idx] = { ...data[idx], ...req.body, id: req.params.id };
-    if (data[idx].amount) data[idx].amount = parseFloat(data[idx].amount);
-    writeData(FILE, data);
-    res.json(data[idx]);
+    const expense = await Expense.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      { ...req.body },
+      { new: true }
+    );
+    
+    if (!expense) return res.status(404).json({ error: 'Not found' });
+    res.json(expense);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // DELETE expense
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const data = readData(FILE);
-    const idx = data.findIndex(e => e.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Not found' });
-    data.splice(idx, 1);
-    writeData(FILE, data);
+    const expense = await Expense.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    if (!expense) return res.status(404).json({ error: 'Not found' });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
